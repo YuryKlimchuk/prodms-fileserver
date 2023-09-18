@@ -1,6 +1,7 @@
 package com.hydroyura.prodms.fileserver.controller;
 
 
+import com.hydroyura.prodms.fileserver.data.dto.FileDTO;
 import com.hydroyura.prodms.fileserver.data.entity.File;
 import com.hydroyura.prodms.fileserver.data.entity.FileType;
 import com.hydroyura.prodms.fileserver.data.repository.BaseRepository;
@@ -34,7 +35,12 @@ public class FileController implements IFileController {
     public ResponseEntity<?> fetchPdf(@PathVariable String number) {
         Optional<File> file = fileService.find(number, FileType.PDF);
         return file.isPresent()
-                ? new ResponseEntity<>(file.get(), HttpStatus.OK)
+                ? new ResponseEntity<>(new FileDTO()
+                    .setFileType(file.get().getFileType())
+                    .setNumber(file.get().getNumber())
+                    .setVersion(file.get().getVersion())
+                    .setContent(file.get().getContent().getData()),
+                HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
