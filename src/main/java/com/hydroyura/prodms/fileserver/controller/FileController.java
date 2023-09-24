@@ -9,10 +9,10 @@ import com.hydroyura.prodms.fileserver.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = "/api/v1/files")
@@ -27,21 +27,16 @@ public class FileController implements IFileController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/{number}/pdf" )
     public ResponseEntity<?> save(@PathVariable String number, @RequestBody byte[] content) {
+
         fileService.save(number, FileType.PDF, content);
         return ResponseEntity.ok("saved");
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{number}/pdf" )
-    public ResponseEntity<?> fetchPdf(@PathVariable String number) {
-        Optional<File> file = fileService.find(number, FileType.PDF);
-        return file.isPresent()
-                ? new ResponseEntity<>(new FileDTO()
-                    .setFileType(file.get().getFileType())
-                    .setNumber(file.get().getNumber())
-                    .setVersion(file.get().getVersion())
-                    .setContent(file.get().getContent().getData()),
-                HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @RequestMapping(method = RequestMethod.GET, value = "/{number}/pdf", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Mono<ResponseEntity<FileDTO>> fetchPdf(@PathVariable String number) {
+        return fileService.find(number, FileType.PDF)
+                .map(arg1 -> new ResponseEntity<>(arg1, HttpStatus.OK))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
 }

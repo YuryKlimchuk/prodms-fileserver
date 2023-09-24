@@ -21,41 +21,12 @@ public class FilePredicateGenerator implements IPredicateGenerator {
         Collection<Predicate> predicates = new ArrayList<>();
 
         Optional<String> number = Optional.ofNullable(params.get("NUMBER"));
-        number.ifPresent(value -> predicates.add(QFile.file1.number.eq(value)));
+        number.ifPresent(value -> predicates.add(QFile.file.number.eq(value)));
 
         Optional<String> type = Optional.ofNullable(params.get("TYPE"));
-        type.ifPresent(value -> predicates.add(QFile.file1.fileType.eq(FileType.valueOf(value))));
+        type.ifPresent(value -> predicates.add(QFile.file.fileType.eq(FileType.valueOf(value))));
 
         if(predicates.isEmpty()) return Expressions.TRUE;
         return ExpressionUtils.allOf(predicates);
     }
 }
-
-/*
-        if (params == null || params.isEmpty()) return Expressions.TRUE;
-        Collection<Predicate> predicates = new ArrayList<>();
-
-        Optional<String> type = Optional.ofNullable(params.get("TYPE"));
-        type.ifPresent(value -> predicates.add(QDBPart.dBPart.type.eq(DBPartType.valueOf(value))));
-
-        Optional<String> status = Optional.ofNullable(params.get("STATUS"));
-        status.ifPresent(value -> {
-            String[] values = value.split(",");
-            predicates.add(QDBPart.dBPart.status.in(
-                    Arrays.stream(values)
-                          .map(DBPartStatus::valueOf)
-                          .collect(Collectors.toList()))
-            );
-        });
-
-        Optional<String> name = Optional.ofNullable(params.get("NAME"));
-        name.ifPresent(value -> predicates.add(QDBPart.dBPart.name.contains(value)));
-
-        Optional<String> number = Optional.ofNullable(params.get("NUMBER"));
-        number.ifPresent(value -> predicates.add(QDBPart.dBPart.number.contains(value)));
-
-        if(predicates.isEmpty()) return Expressions.TRUE;
-        return ExpressionUtils.allOf(predicates);
-
-
- */
